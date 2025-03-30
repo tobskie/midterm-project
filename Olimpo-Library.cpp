@@ -4,7 +4,6 @@
 #include <cstring>
 using namespace std;
 
-// Custom setw-like function for field width
 const char* setFieldWidth(const char* str, int width) {
     static char buffer[100];
     int len = strlen(str);
@@ -76,6 +75,7 @@ public:
         toLowerCase(temp);
         return (strcmp(temp, "fiction") == 0 || strcmp(temp, "non-fiction") == 0);
     }
+
     bool isDuplicateID(const char *id) {
         for (int i = 0; i < bookCount; i++) {
             if (strcmp(books[i].getId(), id) == 0) {
@@ -84,19 +84,21 @@ public:
         }
         return false;
     }
+
     bool isAlphanumeric(const char *str) {
         for (int i = 0; str[i] != '\0'; i++) {
             if (!isalnum(str[i])) return false;
         }
         return true;
     }
+
     void addBook() {
         char id[20], isbn[20], title[50], author[50], edition[20], publication[50], category[20];
         bool validID = false;
         while (!validID) {
             cout << "Enter Book ID (alphanumeric): ";
             cin >> id;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             if (!isAlphanumeric(id)) {
                 cout << "Invalid ID! It must be alphanumeric." << endl;
                 continue;
@@ -114,7 +116,6 @@ public:
         cout << "Enter Edition: "; cin.getline(edition, 20);
         cout << "Enter Publication: "; cin.getline(publication, 50);
         
-        // Modified category input with validation loop
         bool validCategory = false;
         while (!validCategory) {
             cout << "Enter Category (Fiction/Non-fiction): ";
@@ -131,11 +132,12 @@ public:
         books[bookCount++] = Book(id, isbn, title, author, edition, publication, category);
         cout << "Book added successfully!" << endl;
     }
+
     void editBook() {
         char id[20];
         cout << "Enter Book ID to edit: ";
         cin >> id;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         for (int i = 0; i < bookCount; i++) {
             if (strcmp(books[i].getId(), id) == 0) {
@@ -148,31 +150,41 @@ public:
                 cout << "Enter new Publication: "; cin.getline(publication, 50);
                 books[i].editBook(isbn, title, author, edition, publication);
                 cout << "Book edited successfully!" << endl;
+                cout << "Press any key to continue...";
+                cin.get();
                 return;
             }
         }
         cout << "Book not found!" << endl;
+        cout << "Press any key to continue...";
+        cin.get();
     }
+
     void searchBook() {
         char id[20];
         cout << "Enter Book ID to search: ";
         cin >> id;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         for (int i = 0; i < bookCount; i++) {
             if (strcmp(books[i].getId(), id) == 0) {
                 displayHeader();
                 books[i].displayBook();
+                cout << "Press any key to continue...";
+                cin.get();
                 return;
             }
         }
         cout << "Book not found!" << endl;
+        cout << "Press any key to continue...";
+        cin.get();
     }
+
     void deleteBook() {
         char id[20];
         cout << "Enter Book ID to delete: ";
         cin >> id;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         for (int i = 0; i < bookCount; i++) {
             if (strcmp(books[i].getId(), id) == 0) {
@@ -181,11 +193,16 @@ public:
                 }
                 bookCount--;
                 cout << "Book deleted successfully!" << endl;
+                cout << "Press any key to continue...";
+                cin.get();
                 return;
             }
         }
         cout << "Book not found!" << endl;
+        cout << "Press any key to continue...";
+        cin.get();
     }
+
     void displayHeader() {
         cout << setFieldWidth("ID", 10) << " " 
              << setFieldWidth("ISBN", 15) << " " 
@@ -197,30 +214,46 @@ public:
         
         cout << "---------- --------------- ------------------------- -------------------- --------- ------------------- ---------------" << endl;
     }
+
     void viewBooksByCategory() {
         char category[20];
-        cout << "Enter Category (Fiction/Non-fiction): ";
-        cin >> category;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
-        toLowerCase(category);
+        bool validCategory = false;
+        bool foundBooks = false;
+        
+        while (!validCategory || !foundBooks) {
+            cout << "Enter Category (Fiction/Non-fiction) or 'exit' to cancel: ";
+            cin.getline(category, 20);
+            toLowerCase(category);
 
-        if (!isValidCategory(category)) {
-            cout << "Invalid category!" << endl;
-            return;
-        }
+            if (strcmp(category, "exit") == 0) {
+                return;
+            }
 
-        displayHeader();
-        bool found = false;
-        for (int i = 0; i < bookCount; i++) {
-            if (strcmp(books[i].getCategory(), category) == 0) {
-                books[i].displayBook();
-                found = true;
+            if (!isValidCategory(category)) {
+                cout << "Invalid category! Please enter either 'Fiction' or 'Non-fiction'." << endl;
+                continue;
+            }
+
+            displayHeader();
+            foundBooks = false;
+            for (int i = 0; i < bookCount; i++) {
+                if (strcmp(books[i].getCategory(), category) == 0) {
+                    books[i].displayBook();
+                    foundBooks = true;
+                }
+            }
+
+            if (!foundBooks) {
+                cout << "Category not found!" << endl;
+            } else {
+                validCategory = true;
             }
         }
-        if (!found) {
-            cout << "No books found in this category." << endl;
-        }
+        
+        cout << "Press any key to continue...";
+        cin.get();
     }
+
     void viewAllBooks() {
         if (bookCount == 0) {
             cout << "No books available." << endl;
@@ -230,6 +263,8 @@ public:
         for (int i = 0; i < bookCount; i++) {
             books[i].displayBook();
         }
+        cout << "Press any key to continue...";
+        cin.get();
     }
 
     int getMenuChoice() {
@@ -248,7 +283,6 @@ public:
             string input;
             getline(cin, input);
 
-            // Check for empty input
             if (input.empty()) {
                 cout << "Invalid input! Please enter a single-digit integer between 1 and 7." << endl;
                 continue;
